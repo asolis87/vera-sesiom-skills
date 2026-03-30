@@ -61,19 +61,68 @@ Las skills son documentos estructurados que codifican el ADN tecnico de la empre
 | [documentation-standards](skills/documentation-standards/SKILL.md) | Estandares de documentacion y ADRs | Guidelines |
 | [onboarding](skills/onboarding/SKILL.md) | Guia de onboarding para nuevos devs y agentes | Guidelines |
 
-## Como Usar
+## Instalacion
 
-### Para Agentes AI
+### Instalador Automatico (recomendado)
 
-Copiar la carpeta `skills/` al directorio de configuracion del agente:
+El instalador detecta las herramientas AI instaladas y configura todo automaticamente.
 
 ```bash
-cp -r skills/ ~/.config/opencode/skills/
+# Clonar el repo
+git clone https://github.com/vera-sesiom/vera-sesiom-skills.git
+cd vera-sesiom-skills
+
+# Instalacion interactiva (te pregunta que modo)
+./install.sh
+
+# O elegir directamente el modo:
+./install.sh --project    # Solo en el proyecto actual
+./install.sh --global     # Solo en las herramientas globales
+./install.sh --all        # Ambos
 ```
 
-O referenciar directamente desde `AGENTS.md` en el proyecto.
+Flags disponibles:
 
-### Para Desarrolladores
+| Flag | Descripcion |
+|------|------------|
+| `--project`, `-p` | Instalar en el directorio actual |
+| `--global`, `-g` | Instalar globalmente para todas las herramientas |
+| `--all`, `-a` | Instalar en ambos |
+| `--force`, `-f` | Sobreescribir sin preguntar |
+| `--dry-run`, `-d` | Mostrar que se haria sin ejecutar |
+| `--help`, `-h` | Mostrar ayuda |
+
+### Herramientas Soportadas
+
+| Herramienta | Proyecto | Global | Formato |
+|-------------|----------|--------|---------|
+| **OpenCode** | `AGENTS.md` | `~/.config/opencode/skills/` | AGENTS.md + skills |
+| **Claude Code** | `CLAUDE.md` → `@AGENTS.md` | `~/.claude/skills/` | CLAUDE.md referencia |
+| **Cursor** | `.cursor/rules/vera-sesiom.mdc` | `~/.cursor/skills/` | MDC rules |
+| **VS Code Copilot** | `.github/copilot-instructions.md` | — | Instrucciones inline |
+| **Windsurf** | `.windsurf/rules/vera-sesiom.md` | `~/.codeium/windsurf/skills/` | Rules con trigger |
+| **OpenAI Codex** | `AGENTS.md` + `.agents/skills/` | `~/.agents/skills/` | AGENTS.md + skills |
+
+### Desinstalar
+
+```bash
+./uninstall.sh           # Interactivo
+./uninstall.sh --force   # Sin confirmaciones
+```
+
+### Instalacion Manual
+
+Si preferis no usar el instalador:
+
+```bash
+# Copiar skills a tu herramienta (ejemplo: OpenCode)
+cp -r skills/ ~/.config/opencode/skills/
+
+# Copiar AGENTS.md a tu proyecto
+cp AGENTS.md /path/to/your/project/
+```
+
+### Para Desarrolladores (referencia)
 
 Navegar las skills como documentacion. Cada `SKILL.md` contiene:
 

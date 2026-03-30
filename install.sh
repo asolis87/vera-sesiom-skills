@@ -1,0 +1,361 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+AGENTS_MD="${SCRIPT_DIR}/AGENTS.md"
+CONVENTIONS_MD="${SCRIPT_DIR}/skills/_shared/conventions.md"
+SHARED_DIR="${SCRIPT_DIR}/skills/_shared"
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+RESET='\033[0m'
+
+if [ ! -t 1 ]; then
+    RED='' GREEN='' YELLOW='' BLUE='' MAGENTA='' CYAN='' BOLD='' RESET=''
+fi
+
+einfo() { echo -e "${GREEN}✓${RESET} $*"; }
+eerror() { echo -e "${RED}✗${RESET} $*"; }
+ewarn() { echo -e "${YELLOW}⚠${RESET} $*"; }
+eaction() { echo -e "${CYAN}→${RESET} $*"; }
+ebold() { echo -e "${BOLD}$*${RESET}"; }
+
+usage() {
+    cat <<EOF
+${BOLD}Vera Sesiom Skills Installer${RESET}
+
+${BOLD}USAGE${RESET}
+    $(basename "$0") [OPTIONS]
+
+${BOLD}OPTIONS${RESET}
+    -p, --project    Install skills into the current project directory
+    -g, --global     Install skills to global config directories for all tools
+    -a, --all        Install to both project and global locations
+    -f, --force      Overwrite existing files without asking
+    -d, --dry-run    Show what would be installed without doing it
+    -h, --help       Show this help message
+
+${BOLD}DESCRIPTION${RESET}
+    Installs Vera Sesiom AI agent skills for multiple tools:
+    OpenCode, Claude Code, Cursor, Codex, Windsurf, VS Code Copilot
+
+    Project-level install copies skills into the current directory.
+    Global install copies skills to ~/.config/ and other standard locations.
+
+${BOLD}EXAMPLES${RESET}
+    $(basename "$0")                  # Interactive mode
+    $(basename "$0") --project        # Install into current directory only
+    $(basename "$0") --global         # Install globally for all tools
+    $(basename "$0") --all --force    # Install everywhere, overwrite existing
+    $(basename "$0") --dry-run        # Preview what would be installed
+
+EOF
+    exit 0
+}
+
+DRY_RUN=false
+FORCE=false
+MODE=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -p|--project) MODE="project" ;;
+        -g|--global) MODE="global" ;;
+        -a|--all) MODE="all" ;;
+        -f|--force) FORCE=true ;;
+        -d|--dry-run) DRY_RUN=true ;;
+        -h|--help) usage ;;
+        *) eerror "Unknown option: $1"; usage ;;
+    esac
+    shift
+done
+
+SKILL_LIST="api-design aws-infra code-review documentation-standards flutter-mobile git-workflow hexagonal-architecture monorepo-structure node-backend onboarding security-practices testing-strategy vps-dokploy vue-frontend"
+
+prompt_install() {
+    echo ""
+    ebold "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    ebold "  ${MAGENTA}Vera Sesiom Skills Installer${RESET}"
+    ebold "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo "  This script installs AI agent skills for:"
+    echo "    ${CYAN}•${RESET} OpenCode"
+    echo "    ${CYAN}•${RESET} Claude Code"
+    echo "    ${CYAN}•${RESET} Cursor"
+    echo "    ${CYAN}•${RESET} Windsurf"
+    echo "    ${CYAN}•${RESET} Codex"
+    echo "    ${CYAN}•${RESET} VS Code Copilot"
+    echo ""
+    echo "  ${BOLD}Select installation mode:${RESET}"
+    echo "    ${GREEN}[1]${RESET} Project-level   — Install into current directory"
+    echo "    ${GREEN}[2]${RESET} Global          — Install to ~/.config/ for all tools"
+    echo "    ${GREEN}[3]${RESET} Both            — Install to both locations"
+    echo "    ${GREEN}[0]${RESET} Cancel"
+    echo ""
+    printf "  Enter choice [0-3]: "
+    local choice
+    read -r choice
+    case "$choice" in
+        1) MODE="project" ;;
+        2) MODE="global" ;;
+        3) MODE="all" ;;
+        0) echo "Cancelled."; exit 0 ;;
+        *) eerror "Invalid choice"; exit 1 ;;
+    esac
+}
+
+check_tool() {
+    case "$1" in
+        opencode) [ -d "$HOME/.config/opencode" ] ;;
+        claude) [ -d "$HOME/.claude" ] ;;
+        cursor) [ -d "$HOME/.cursor" ] ;;
+        windsurf) [ -d "$HOME/.codeium/windsurf" ] ;;
+        codex) [ -d "$HOME/.codex" ] ;;
+        *) return 1 ;;
+    esac
+}
+
+confirm_overwrite() {
+    local file="$1"
+    if [ -f "$file" ] && [ "$FORCE" != "true" ]; then
+        printf "  ${YELLOW}%s already exists. Overwrite?${RESET} [y/N] " "$file"
+        local ans
+        read -r ans
+        if [ "$ans" != "y" ] && [ "$ans" != "Y" ]; then
+            ewarn "Skipped: $file"
+            return 1
+        fi
+    fi
+    return 0
+}
+
+install_agents_md() {
+    local target="$1"
+    if ! confirm_overwrite "$target"; then return; fi
+    if [ "$DRY_RUN" = "true" ]; then
+        eaction "Would copy AGENTS.md → $target"
+    else
+        cp "$AGENTS_MD" "$target"
+        einfo "Installed AGENTS.md → $target"
+    fi
+}
+
+install_claude_md() {
+    local target="$1"
+    if ! confirm_overwrite "$target"; then return; fi
+    if [ "$DRY_RUN" = "true" ]; then
+        eaction "Would create CLAUDE.md → $target"
+    else
+        cat > "$target" <<'CLAUDEEOF'
+<!-- Auto-generated by vera-sesiom-skills installer -->
+@AGENTS.md
+CLAUDEEOF
+        einfo "Installed CLAUDE.md → $target"
+    fi
+}
+
+install_cursor_rule() {
+    local target="$1"
+    mkdir -p "$(dirname "$target")"
+    if ! confirm_overwrite "$target"; then return; fi
+    if [ "$DRY_RUN" = "true" ]; then
+        eaction "Would create Cursor rule → $target"
+    else
+        cp "$AGENTS_MD" "$target"
+        einfo "Installed Cursor rule → $target"
+    fi
+}
+
+install_copilot_instructions() {
+    local target="$1"
+    mkdir -p "$(dirname "$target")"
+    if ! confirm_overwrite "$target"; then return; fi
+    if [ "$DRY_RUN" = "true" ]; then
+        eaction "Would create Copilot instructions → $target"
+    else
+        {
+            echo "# Vera Sesiom — Copilot Instructions"
+            echo ""
+            echo "<!-- Auto-generated by vera-sesiom-skills installer -->"
+            echo "<!-- Source: https://github.com/vera-sesiom/vera-sesiom-skills -->"
+            echo ""
+            cat "$CONVENTIONS_MD"
+            echo ""
+            echo "---"
+            echo ""
+            echo "## Skill Registry"
+            echo ""
+            echo "The following skills define Vera Sesiom development standards."
+            echo "Refer to each skill for detailed patterns and rules."
+            echo ""
+            # Extract the skill table from AGENTS.md (between "Auto-load" header and next ##)
+            sed -n '/^| Context/,/^$/p' "$AGENTS_MD"
+        } > "$target"
+        einfo "Installed Copilot instructions → $target"
+    fi
+}
+
+install_windsurf_rule() {
+    local target="$1"
+    mkdir -p "$(dirname "$target")"
+    if ! confirm_overwrite "$target"; then return; fi
+    if [ "$DRY_RUN" = "true" ]; then
+        eaction "Would create Windsurf rule → $target"
+    else
+        {
+            echo "---"
+            echo "trigger: always_on"
+            echo "---"
+            echo ""
+            cat "$AGENTS_MD"
+        } > "$target"
+        einfo "Installed Windsurf rule → $target"
+    fi
+}
+
+install_skills_to_path() {
+    local source_dir="$1"
+    local target_dir="$2"
+    local tool_name="$3"
+    mkdir -p "$target_dir"
+    einfo "${BOLD}Installing skills for $tool_name...${RESET}"
+    for skill in $SKILL_LIST; do
+        local src="$source_dir/$skill"
+        local dst="$target_dir/$skill"
+        if [ -d "$src" ]; then
+            if [ -d "$dst" ] && [ "$FORCE" != "true" ]; then
+                printf "    ${YELLOW}%s/ already exists. Overwrite?${RESET} [y/N] " "$dst"
+                local ans
+                read -r ans
+                if [ "$ans" != "y" ] && [ "$ans" != "Y" ]; then
+                    ewarn "Skipped: $dst"
+                    continue
+                fi
+            fi
+            if [ "$DRY_RUN" = "true" ]; then
+                eaction "Would copy skill: $skill → $dst"
+            else
+                rm -rf "$dst"
+                cp -r "$src" "$dst"
+                einfo "  Installed $skill/"
+            fi
+        fi
+    done
+    if [ -d "$SHARED_DIR" ]; then
+        local shared_dst="$target_dir/_shared"
+        if [ "$DRY_RUN" = "true" ]; then
+            eaction "Would copy _shared/ → $shared_dst"
+        else
+            rm -rf "$shared_dst"
+            cp -r "$SHARED_DIR" "$shared_dst"
+            einfo "  Installed _shared/"
+        fi
+    fi
+}
+
+install_global() {
+    echo ""
+    ebold "━━━ ${MAGENTA}Global Installation${RESET} ━━━"
+
+    [ -d "$HOME/.config/opencode" ] && {
+        install_skills_to_path "$SCRIPT_DIR/skills" "$HOME/.config/opencode/skills" "OpenCode"
+    } || ewarn "OpenCode not detected (skipped)"
+
+    [ -d "$HOME/.claude" ] && {
+        install_skills_to_path "$SCRIPT_DIR/skills" "$HOME/.claude/skills" "Claude Code"
+    } || ewarn "Claude Code not detected (skipped)"
+
+    [ -d "$HOME/.cursor" ] && {
+        install_skills_to_path "$SCRIPT_DIR/skills" "$HOME/.cursor/skills" "Cursor"
+    } || ewarn "Cursor not detected (skipped)"
+
+    [ -d "$HOME/.codeium/windsurf" ] && {
+        install_skills_to_path "$SCRIPT_DIR/skills" "$HOME/.codeium/windsurf/skills" "Windsurf"
+    } || ewarn "Windsurf not detected (skipped)"
+
+    [ -d "$HOME/.codex" ] && {
+        install_skills_to_path "$SCRIPT_DIR/skills" "$HOME/.agents/skills" "Codex"
+    } || ewarn "Codex not detected (skipped)"
+}
+
+install_project() {
+    echo ""
+    ebold "━━━ ${MAGENTA}Project-Level Installation${RESET} ━━━"
+    einfo "Target: $(pwd)"
+
+    install_agents_md "./AGENTS.md"
+    install_claude_md "./CLAUDE.md"
+    install_cursor_rule "./.cursor/rules/vera-sesiom.mdc"
+    install_copilot_instructions "./.github/copilot-instructions.md"
+    install_windsurf_rule "./.windsurf/rules/vera-sesiom.md"
+
+    for tool in claude codex windsurf; do
+        case "$tool" in
+            claude) dest="./.claude/skills" tool_name="Claude Code" ;;
+            codex) dest="./.agents/skills" tool_name="Codex" ;;
+            windsurf) dest="./.windsurf/skills" tool_name="Windsurf" ;;
+        esac
+        install_skills_to_path "$SCRIPT_DIR/skills" "$dest" "$tool_name"
+    done
+}
+
+print_summary() {
+    echo ""
+    ebold "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    ebold "  ${GREEN}Installation Complete!${RESET}"
+    ebold "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    if [ "$MODE" = "project" ] || [ "$MODE" = "all" ]; then
+        echo "  ${CYAN}Project-level:${RESET}"
+        echo "    • AGENTS.md"
+        echo "    • CLAUDE.md"
+        echo "    • .cursor/rules/vera-sesiom.mdc"
+        echo "    • .github/copilot-instructions.md"
+        echo "    • .windsurf/rules/vera-sesiom.md"
+        echo "    • .claude/skills/"
+        echo "    • .agents/skills/"
+        echo "    • .windsurf/skills/"
+    fi
+    if [ "$MODE" = "global" ] || [ "$MODE" = "all" ]; then
+        echo "  ${CYAN}Global:${RESET}"
+        [ -d "$HOME/.config/opencode" ] && echo "    • ~/.config/opencode/skills/"
+        [ -d "$HOME/.claude" ] && echo "    • ~/.claude/skills/"
+        [ -d "$HOME/.cursor" ] && echo "    • ~/.cursor/skills/"
+        [ -d "$HOME/.codeium/windsurf" ] && echo "    • ~/.codeium/windsurf/skills/"
+        [ -d "$HOME/.codex" ] && echo "    • ~/.agents/skills/"
+    fi
+    echo ""
+    ebold "  Suggested .gitignore entries:"
+    echo ""
+    echo "    # AI Agent Skills (project-level)"
+    echo "    .claude/skills/"
+    echo "    .agents/skills/"
+    echo "    .windsurf/skills/"
+    echo ""
+}
+
+if [ -z "$MODE" ]; then
+    prompt_install
+fi
+
+if [ "$DRY_RUN" = "true" ]; then
+    echo ""
+    ebold "━━━ ${YELLOW}DRY RUN MODE${RESET} ━━━"
+    echo ""
+fi
+
+case "$MODE" in
+    project) install_project ;;
+    global) install_global ;;
+    all)
+        install_project
+        install_global
+        ;;
+esac
+
+print_summary
