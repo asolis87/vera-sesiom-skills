@@ -79,7 +79,7 @@ while [[ $# -gt 0 ]]; do
     shift
 done
 
-SKILL_LIST="api-design astro-landing aws-infra code-review documentation-standards flutter-mobile git-workflow hexagonal-architecture monorepo-structure node-backend onboarding security-practices testing-strategy vps-dokploy vue-frontend"
+SKILL_LIST="api-design astro-landing aws-infra code-review documentation-standards flutter-mobile git-workflow hexagonal-architecture monorepo-structure node-backend onboarding security-practices stitch-designer testing-strategy vps-dokploy vue-frontend"
 
 prompt_install() {
     echo ""

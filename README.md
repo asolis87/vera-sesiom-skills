@@ -2,7 +2,7 @@
 
 **Standardized AI agent skills and development conventions for Vera Sesiom** — covering architecture, workflows, and best practices across Vue, Node, Flutter, Astro, and AWS/VPS infrastructure.
 
-![Skills: 15](https://img.shields.io/badge/Skills-15-2563eb)
+![Skills: 16](https://img.shields.io/badge/Skills-16-2563eb)
 ![Tools: 6](https://img.shields.io/badge/Tools_Supported-6-16a34a)
 ![License: Proprietary](https://img.shields.io/badge/License-Proprietary-6b7280)
 ![Architecture: Hexagonal](https://img.shields.io/badge/Architecture-Hexagonal-7c3aed)
@@ -98,6 +98,14 @@ cd vera-sesiom-skills
 | [hexagonal-architecture](skills/hexagonal-architecture/SKILL.md) | Hexagonal Architecture — layers, ports, adapters | **MUST** |
 | [monorepo-structure](skills/monorepo-structure/SKILL.md) | Monorepo structure with pnpm + Turborepo | **MUST** |
 | [git-workflow](skills/git-workflow/SKILL.md) | Git flow, branching, conventional commits, PRs | **MUST** |
+
+### Design
+
+> Visual design discovery and screen generation with Stitch.
+
+| Skill | Description | Level |
+|-------|------------|-------|
+| [stitch-designer](skills/stitch-designer/SKILL.md) | UI design workflow with Stitch — discovery, design systems, screen generation, design-to-code | Mix |
 
 ### Stack-Specific
 
@@ -220,7 +228,7 @@ skills/
 ├── vue-frontend/             ← Vue 3 patterns
 ├── node-backend/             ← Node.js patterns
 ├── flutter-mobile/           ← Flutter patterns
-└── ...                       ← 15 skills total
+└── ...                       ← 16 skills total
 ```
 
 ---
