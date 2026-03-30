@@ -101,3 +101,43 @@ Vera Sesiom soporta dos estrategias de infraestructura. La eleccion se hace al i
 Skills relacionadas:
 - [aws-infra](../aws-infra/SKILL.md) — cuando el proyecto requiere AWS
 - [vps-dokploy](../vps-dokploy/SKILL.md) — cuando el proyecto va a VPS
+
+## Frontend — Criterio de Decision
+
+Vera Sesiom usa dos stacks de frontend según el tipo de proyecto. La eleccion se hace al inicio y se documenta.
+
+### Arbol de Decision
+
+```
+¿El proyecto es...?
+│
+├─ Landing page, sitio corporativo, blog, docs → Astro
+├─ SEO critico, contenido estatico → Astro
+├─ Interactividad minima (formularios, carruseles) → Astro
+│
+├─ Web app interactiva (dashboard, admin) → Vue
+├─ Alta interactividad, CRUD, real-time → Vue
+├─ Estado complejo, validaciones extensas → Vue
+│
+└─ No estas seguro → Evaluá caso por caso
+```
+
+### Comparacion Rapida
+
+| Criterio | Astro (astro-landing) | Vue (vue-frontend) |
+|----------|----------------------|-------------------|
+| Tipo de proyecto | Landing page, sitio corporativo, blog | Web app interactiva |
+| Interactividad | Minima (formularios, carruseles) | Alta (dashboards, CRUD, real-time) |
+| SEO | Critico | Importante pero manejable con SSR |
+| JS al cliente | Zero por defecto | Runtime completo de Vue |
+| Contenido | Estatico o semi-estatico | Dinamico |
+| Hidratacion | Islands (pay per use) | Full hydration |
+
+### Regla de Oro
+
+> **Si el sitio es contenido que la gente LEE → Astro.**
+> **Si es una app que la gente USA → Vue.**
+
+Skills relacionadas:
+- [astro-landing](../astro-landing/SKILL.md) — landing pages y sitios de contenido
+- [vue-frontend](../vue-frontend/SKILL.md) — aplicaciones web interactivas

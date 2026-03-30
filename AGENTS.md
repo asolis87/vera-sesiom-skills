@@ -21,6 +21,7 @@ When you detect any of these contexts, IMMEDIATELY load the corresponding skill 
 | Git branches, commits, PRs, releases | `git-workflow` | [SKILL.md](skills/git-workflow/SKILL.md) |
 | Architecture layers, ports, adapters, use cases | `hexagonal-architecture` | [SKILL.md](skills/hexagonal-architecture/SKILL.md) |
 | Monorepo, workspaces, packages, turborepo | `monorepo-structure` | [SKILL.md](skills/monorepo-structure/SKILL.md) |
+| Astro sites, landing pages, static content, SSG | `astro-landing` | [SKILL.md](skills/astro-landing/SKILL.md) |
 | Vue components, composables, Pinia stores | `vue-frontend` | [SKILL.md](skills/vue-frontend/SKILL.md) |
 | Node.js backend, Express, Fastify, Prisma | `node-backend` | [SKILL.md](skills/node-backend/SKILL.md) |
 | Flutter widgets, Riverpod, Dart code | `flutter-mobile` | [SKILL.md](skills/flutter-mobile/SKILL.md) |
@@ -39,7 +40,7 @@ When multiple skills apply, load them in this order:
 
 1. **Architecture** — `hexagonal-architecture` (always applies)
 2. **Structure** — `monorepo-structure` (always applies)
-3. **Stack** — `vue-frontend` / `node-backend` / `flutter-mobile`
+3. **Stack** — `astro-landing` / `vue-frontend` / `node-backend` / `flutter-mobile`
 4. **Quality** — `testing-strategy` / `code-review`
 5. **Domain** — `api-design` / `security-practices` / `aws-infra` / `vps-dokploy`
 6. **Process** — `git-workflow` / `documentation-standards`

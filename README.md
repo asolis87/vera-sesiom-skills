@@ -34,6 +34,7 @@ Las skills son documentos estructurados que codifican el ADN tecnico de la empre
 
 | Skill | Descripcion | Prescripcion |
 |-------|------------|-------------|
+| [astro-landing](skills/astro-landing/SKILL.md) | Astro para landing pages, sitios de contenido, SSG | Mix |
 | [vue-frontend](skills/vue-frontend/SKILL.md) | Vue 3 + Screaming Architecture + Atomic Design | Mix |
 | [node-backend](skills/node-backend/SKILL.md) | Node.js + Hexagonal Architecture | Mix |
 | [flutter-mobile](skills/flutter-mobile/SKILL.md) | Flutter + Clean Architecture | Mix |
