@@ -29,6 +29,10 @@ usage() {
     cat <<EOF
 ${BOLD}Vera Sesiom Skills Installer${RESET}
 
+${BOLD}REMOTE USAGE${RESET}
+    curl -fsSL https://raw.githubusercontent.com/asolis87/vera-sesiom-skills/main/remote-install.sh | bash
+    curl -fsSL ... | bash -s -- --all --force
+
 ${BOLD}USAGE${RESET}
     $(basename "$0") [OPTIONS]
 

@@ -45,21 +45,31 @@ The installer reads which AI coding tools you have installed, then copies the sk
 
 ## Quick Start
 
+Install skills into your project with a single command:
+
 ```bash
-git clone https://github.com/vera-sesiom/vera-sesiom-skills.git && cd vera-sesiom-skills && ./install.sh --all
+curl -fsSL https://raw.githubusercontent.com/asolis87/vera-sesiom-skills/main/remote-install.sh | bash
 ```
 
-Or step by step:
+With options:
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/vera-sesiom/vera-sesiom-skills.git
+# Install globally for all AI tools
+curl -fsSL https://raw.githubusercontent.com/asolis87/vera-sesiom-skills/main/remote-install.sh | bash -s -- --global
+
+# Install both project + global
+curl -fsSL https://raw.githubusercontent.com/asolis87/vera-sesiom-skills/main/remote-install.sh | bash -s -- --all
+
+# Preview what would be installed
+curl -fsSL https://raw.githubusercontent.com/asolis87/vera-sesiom-skills/main/remote-install.sh | bash -s -- --dry-run
+```
+
+Or clone and install manually:
+
+```bash
+git clone https://github.com/asolis87/vera-sesiom-skills.git
 cd vera-sesiom-skills
-
-# 2. Run the interactive installer
-./install.sh
-
-# 3. That's it — your AI tools now follow Vera Sesiom conventions
+./install.sh --all
 ```
 
 ---
